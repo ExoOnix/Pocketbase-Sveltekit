@@ -2,7 +2,7 @@
 
 ### Dev mode
 
-Make sure to have go installed.
+Make sure to have go and nodejs installed.
 
 ```
 cd sk
