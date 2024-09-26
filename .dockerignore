@@ -4,3 +4,4 @@
 ./sk/package-lock.json
 
 ./pb/pb_data
+./pb/pocketbase
