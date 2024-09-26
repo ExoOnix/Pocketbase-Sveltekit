@@ -1,0 +1,6 @@
+./sk/.svelte-kit
+./sk/node_modules
+./sk/build
+./sk/package-lock.json
+
+./pb/pb_data

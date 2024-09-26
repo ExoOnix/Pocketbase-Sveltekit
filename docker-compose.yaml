@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - pbdb:/app/pb_data
+    command: ["/app/pocketbase", "serve", "--http", "0.0.0.0:8090", "--publicDir=/app/sk/build"]
+volumes:
+  pbdb:
