@@ -20,7 +20,10 @@ const config = {
 			precompress: false,
 			strict: true
 		})
-	}
+	},
+	alias: {
+		"@/*": "./src/lib",
+	},
 };
 
 export default config;
