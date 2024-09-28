@@ -1,21 +1,28 @@
 <script lang="ts">
-    import {currentUser, pb} from './pocketbase'
+    import { currentUser, pb } from './pocketbase';
     import Button from '$lib/components/ui/button/button.svelte';
     import Input from '$lib/components/ui/input/input.svelte';
     import Label from '$lib/components/ui/label/label.svelte';
     import * as Tabs from "$lib/components/ui/tabs/index.js";
-    import * as AlertDialog from "$lib/components/ui/alert-dialog"
-    let username: string
-    let password: string
-    let confirmpassword: string
-    let email: string
+    import * as AlertDialog from "$lib/components/ui/alert-dialog";
+    import { toast } from "svelte-sonner";
+    import { writable } from "svelte/store";
+
+    let username: string;
+    let password: string;
+    let confirmpassword: string;
+    let email: string;
+    
+    // Control whether the dialog is open or not
+    let isDialogOpen = writable(false);
 
     async function login() {
-      try {
-        await pb.collection('users').authWithPassword(username, password)
-      } catch (error: any) {
-        console.log(error.response.data)
-      }
+        try {
+            await pb.collection('users').authWithPassword(username, password);
+            isDialogOpen.set(false);  // Close the dialog on successful login
+        } catch (error: any) {
+            toast("Invalid username or password");  // Stay open on error
+        }
     }
 
     async function signUp() {
@@ -25,15 +32,16 @@
                 username,
                 password,
                 passwordConfirm: confirmpassword,
-            }
-            const createdUser = await pb.collection('users').create(data)
-            await login()
+            };
+            const createdUser = await pb.collection('users').create(data);
+            await login();  // Attempt login after sign-up
         } catch (error: any) {
-            console.log(error.response.data)
+            toast("Issue with signing up.");  // Stay open on error
         }
     }
+
     function signOut() {
-        pb.authStore.clear()
+        pb.authStore.clear();
     }
 </script>
 
@@ -44,13 +52,13 @@
 </p>
 {:else}
 <div>
-  <AlertDialog.Root>
-  <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+  <AlertDialog.Root bind:open={$isDialogOpen}>
+    <AlertDialog.Trigger on:click={() => isDialogOpen.set(true)}>Open</AlertDialog.Trigger>
     <AlertDialog.Content class="sm:!w-[450px] w-[80%]">
       <AlertDialog.Header class="sm:!w-[400px] w-[95%]">
-      <AlertDialog.Title>Authentication</AlertDialog.Title>
-      <AlertDialog.Description>Login or create a new account.</AlertDialog.Description>
-    </AlertDialog.Header>
+        <AlertDialog.Title>Authentication</AlertDialog.Title>
+        <AlertDialog.Description>Login or create a new account.</AlertDialog.Description>
+      </AlertDialog.Header>
       <Tabs.Root value="login" class="sm:!w-[400px] w-[95%]">
         <Tabs.List class="grid w-full grid-cols-2">
           <Tabs.Trigger value="login">Log In</Tabs.Trigger>
@@ -69,13 +77,14 @@
               </div>
             </div>
           </form>
-          <AlertDialog.Action on:click={login} class="mt-3">Login</AlertDialog.Action>
-          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+          <!-- Custom button to handle login -->
+          <Button class="mt-3" on:click={login}>Login</Button>
+          <AlertDialog.Cancel on:click={() => isDialogOpen.set(false)}>Cancel</AlertDialog.Cancel>
         </Tabs.Content>
         <Tabs.Content value="signUp">
           <form on:submit|preventDefault>
             <div class="grid w-full items-center gap-4">
-            <div class="flex flex-col space-y-1.5">
+              <div class="flex flex-col space-y-1.5">
                 <Label for="Email">Email</Label>
                 <Input id="email" placeholder="Your Email" type="email" bind:value={email} />
               </div>
@@ -87,14 +96,15 @@
                 <Label for="Password">Password</Label>
                 <Input id="password" placeholder="Your Password" type="password" bind:value={password} />
               </div>
-                <div class="flex flex-col space-y-1.5">
+              <div class="flex flex-col space-y-1.5">
                 <Label for="ConfirmPassword">Confirm Password</Label>
                 <Input id="confirmpassword" placeholder="Confirm Your Password" type="password" bind:value={confirmpassword} />
               </div>
             </div>
           </form>
-          <AlertDialog.Action on:click={signUp} class="mt-3">Sign Up</AlertDialog.Action>
-          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+          <!-- Custom button to handle sign-up -->
+          <Button class="mt-3" on:click={signUp}>Sign Up</Button>
+          <AlertDialog.Cancel on:click={() => isDialogOpen.set(false)}>Cancel</AlertDialog.Cancel>
         </Tabs.Content>
       </Tabs.Root>
     </AlertDialog.Content>
