@@ -7,14 +7,12 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { toast } from 'svelte-sonner';
 	import { writable } from 'svelte/store';
-
+	import { isDialogOpen } from '$lib/stores/isDialogOpen';
 	let username: string;
 	let password: string;
 	let confirmpassword: string;
 	let email: string;
-
-	// Control whether the dialog is open or not
-	let isDialogOpen = writable(false);
+	let fullName: string;
 
 	async function login() {
 		try {
@@ -31,7 +29,8 @@
 				email: email,
 				username,
 				password,
-				passwordConfirm: confirmpassword
+				passwordConfirm: confirmpassword,
+				name: fullName,
 			};
 			const createdUser = await pb.collection('users').create(data);
 			await login(); // Attempt login after sign-up
@@ -45,15 +44,10 @@
 	}
 </script>
 
-{#if $currentUser}
-	<p>
-		Signed in as {$currentUser.username}
-		<Button on:click={signOut}>Sign Out</Button>
-	</p>
-{:else}
+
+{#if $currentUser == null}
 	<div>
 		<AlertDialog.Root bind:open={$isDialogOpen}>
-			<AlertDialog.Trigger on:click={() => isDialogOpen.set(true)}>Open</AlertDialog.Trigger>
 			<AlertDialog.Content class="w-[80%] sm:!w-[450px]">
 				<AlertDialog.Header class="w-[95%] sm:!w-[400px]">
 					<AlertDialog.Title>Authentication</AlertDialog.Title>
@@ -105,6 +99,15 @@
 										placeholder="Your Username"
 										type="text"
 										bind:value={username}
+									/>
+								</div>
+								<div class="flex flex-col space-y-1.5">
+									<Label for="name">Full Name</Label>
+									<Input
+										id="name"
+										placeholder="Your Name"
+										type="text"
+										bind:value={fullName}
 									/>
 								</div>
 								<div class="flex flex-col space-y-1.5">
