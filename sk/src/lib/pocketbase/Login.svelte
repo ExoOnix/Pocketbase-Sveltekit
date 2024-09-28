@@ -2,17 +2,20 @@
     import {currentUser, pb} from './pocketbase'
     import Button from '$lib/components/ui/button/button.svelte';
     import Input from '$lib/components/ui/input/input.svelte';
-    import * as Card from "$lib/components/ui/card";
     import Label from '$lib/components/ui/label/label.svelte';
     import * as Tabs from "$lib/components/ui/tabs/index.js";
-
+    import * as AlertDialog from "$lib/components/ui/alert-dialog"
     let username: string
     let password: string
     let confirmpassword: string
     let email: string
 
     async function login() {
+      try {
         await pb.collection('users').authWithPassword(username, password)
+      } catch (error: any) {
+        console.log(error.response.data)
+      }
     }
 
     async function signUp() {
@@ -25,8 +28,8 @@
             }
             const createdUser = await pb.collection('users').create(data)
             await login()
-        } catch (error) {
-            console.log(error)
+        } catch (error: any) {
+            console.log(error.response.data)
         }
     }
     function signOut() {
@@ -34,38 +37,21 @@
     }
 </script>
 
-<style>
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999; /* High z-index to ensure it's on top */
-    }
-
-    .card {
-        z-index: 10000; /* Ensure card itself is on top */
-    }
-</style>
-
 {#if $currentUser}
 <p>
     Signed in as {$currentUser.username}
     <Button on:click={signOut}>Sign Out</Button>
 </p>
 {:else}
-<div class="overlay">
-  <Card.Root class="w-auto p-4 card">
-    <Card.Header>
-      <Card.Title>Authentication</Card.Title>
-      <Card.Description>Login or create a new account.</Card.Description>
-    </Card.Header>
-    <Card.Content>
-      <Tabs.Root value="login" class="w-[400px]">
+<div>
+  <AlertDialog.Root>
+  <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+    <AlertDialog.Content class="sm:!w-[450px] w-[80%]">
+      <AlertDialog.Header class="sm:!w-[400px] w-[95%]">
+      <AlertDialog.Title>Authentication</AlertDialog.Title>
+      <AlertDialog.Description>Login or create a new account.</AlertDialog.Description>
+    </AlertDialog.Header>
+      <Tabs.Root value="login" class="sm:!w-[400px] w-[95%]">
         <Tabs.List class="grid w-full grid-cols-2">
           <Tabs.Trigger value="login">Log In</Tabs.Trigger>
           <Tabs.Trigger value="signUp">Sign Up</Tabs.Trigger>
@@ -83,7 +69,8 @@
               </div>
             </div>
           </form>
-          <Button on:click={login} class="mt-3">Login</Button>
+          <AlertDialog.Action on:click={login} class="mt-3">Login</AlertDialog.Action>
+          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
         </Tabs.Content>
         <Tabs.Content value="signUp">
           <form on:submit|preventDefault>
@@ -106,10 +93,11 @@
               </div>
             </div>
           </form>
-          <Button on:click={signUp} class="mt-3">Sign Up</Button>
+          <AlertDialog.Action on:click={signUp} class="mt-3">Sign Up</AlertDialog.Action>
+          <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
         </Tabs.Content>
       </Tabs.Root>
-    </Card.Content>
-  </Card.Root>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
 </div>
 {/if}
