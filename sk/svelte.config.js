@@ -22,8 +22,8 @@ const config = {
 		})
 	},
 	alias: {
-		"@/*": "./src/lib",
-	},
+		'@/*': './src/lib'
+	}
 };
 
 export default config;
