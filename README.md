@@ -1,7 +1,7 @@
 # PocketBase + SvelteKit
 
 ### Summary
-This is a basic template for Pocketbase with SvelteKit. The frontend uses ShadCN for ui components. PocketBase is easily extendable with Go or JS
+This is a basic template for Pocketbase with SvelteKit. The frontend uses ShadCN for ui components. PocketBase is easily extendable with Go or JS. Basic login functionality is set up.
 
 ### Dev mode
 
